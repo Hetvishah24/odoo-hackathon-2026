@@ -12,6 +12,7 @@ import {
 } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { chartTooltipContentStyle, chartTooltipItemStyle, chartTooltipLabelStyle } from "@/lib/chart-theme";
 import { formatCurrency, getRoiColorClass } from "@/lib/utils";
 import { StatCard } from "@/features/dashboard/components/stat-card";
 import type { FinancialOverview } from "@/features/dashboard/types";
@@ -41,7 +42,11 @@ export function FinancialOverviewPanel({ data }: { data: FinancialOverview }) {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
                 <XAxis dataKey="registration_number" tick={{ fontSize: 12 }} />
                 <YAxis />
-                <Tooltip />
+                <Tooltip
+                  contentStyle={chartTooltipContentStyle}
+                  labelStyle={chartTooltipLabelStyle}
+                  itemStyle={chartTooltipItemStyle}
+                />
                 <Legend />
                 <Bar dataKey="fuel_cost" name="Fuel" stackId="cost" fill="hsl(var(--primary))" />
                 <Bar
