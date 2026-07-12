@@ -25,16 +25,10 @@ import { navItems, type NavItem } from "@/components/layout/nav-items";
 import { useTheme } from "@/lib/use-theme";
 
 function findActiveItem(items: NavItem[], pathname: string): NavItem | undefined {
-  for (const item of items) {
-    if (item.href && (pathname === item.href || pathname.startsWith(`${item.href}/`))) {
-      return item;
-    }
-    if (item.children) {
-      const found = findActiveItem(item.children, pathname);
-      if (found) return found;
-    }
-  }
-  return undefined;
+  return items.find((item) => {
+    const paths = [item.href, ...(item.activePaths ?? [])];
+    return paths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  });
 }
 
 export function Header() {

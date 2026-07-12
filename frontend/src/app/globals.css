@@ -37,14 +37,17 @@
      * overrides are provided in the `.dark` block below so the shell follows
      * the active theme (light or dark).
      */
-    --sidebar-background: 220 18% 12%;
-    --sidebar-foreground: 0 0% 98%;
+    --sidebar-background: 240 2% 13%;
+    --sidebar-foreground: 0 0% 82%;
     --sidebar-primary: 210 12% 18%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 212 90% 55%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 220 16% 10%;
+    --sidebar-border: 240 2% 18%;
     --sidebar-ring: 212 90% 65%;
+    --sidebar-active: 28 22% 18%;
+    --sidebar-active-border: 32 55% 42%;
+    --sidebar-active-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -67,14 +70,17 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
-    --sidebar-background: 240 6% 12%;
-    --sidebar-foreground: 240 5% 92%;
+    --sidebar-background: 240 2% 13%;
+    --sidebar-foreground: 0 0% 82%;
     --sidebar-primary: 0 0% 100%;
     --sidebar-primary-foreground: 240 6% 10%;
     --sidebar-accent: 240 6% 18%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 240 6% 20%;
+    --sidebar-border: 240 2% 18%;
     --sidebar-ring: 240 5% 48%;
+    --sidebar-active: 28 22% 18%;
+    --sidebar-active-border: 32 55% 42%;
+    --sidebar-active-foreground: 0 0% 100%;
   }
 }
 

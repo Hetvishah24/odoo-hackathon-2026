@@ -3,46 +3,19 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/auth-context";
 import { navItems, type NavItem } from "@/components/layout/nav-items";
-import { AuthGuard } from "@/features/auth/components/auth-guard";
-import { Header } from "@/components/layout/header";
-import { Sidebar } from "@/components/layout/sidebar";
 
 function isItemActive(item: NavItem, pathname: string): boolean {
-  if (item.href) {
-    return pathname === item.href || pathname.startsWith(`${item.href}/`);
-  }
-  return (item.children ?? []).some((child) => isItemActive(child, pathname));
+  const paths = [item.href, ...(item.activePaths ?? [])];
+  return paths.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
-/** Recursively drops items the user lacks permission for, pruning groups left empty. */
+/** Drops items the user lacks permission for. */
 function filterVisible(items: NavItem[], hasPermission: (...p: string[]) => boolean): NavItem[] {
-  return items
-    .filter((item) => !item.permissions || hasPermission(...item.permissions))
-    .map((item) =>
-      item.children ? { ...item, children: filterVisible(item.children, hasPermission) } : item
-    )
-    .filter((item) => !item.children || item.children.length > 0);
-}
-
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthGuard>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <Header />
-          <main className="flex-1 bg-background p-6 md:p-8">
-            <div className="mx-auto w-full max-w-6xl">{children}</div>
-          </main>
-        </div>
-      </div>
-    </AuthGuard>
-  );
+  return items.filter((item) => !item.permissions || hasPermission(...item.permissions));
 }
 
 export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
@@ -56,77 +29,25 @@ export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <nav className="flex flex-col gap-1">
-      {visibleItems.map((item) => (
-        <NavEntry key={item.title} item={item} pathname={pathname} onNavigate={onNavigate} />
-      ))}
+      {visibleItems.map((item) => {
+        const active = isItemActive(item, pathname);
+
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onNavigate}
+            className={cn(
+              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              active
+                ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm ring-1 ring-sidebar-ring/20"
+                : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm"
+            )}
+          >
+            {item.title}
+          </Link>
+        );
+      })}
     </nav>
-  );
-}
-
-function NavEntry({
-  item,
-  pathname,
-  onNavigate,
-}: {
-  item: NavItem;
-  pathname: string;
-  onNavigate?: () => void;
-}) {
-  const active = isItemActive(item, pathname);
-  const [open, setOpen] = React.useState(active);
-
-  // Keep a group expanded whenever navigation lands on one of its children.
-  React.useEffect(() => {
-    if (active) setOpen(true);
-  }, [active]);
-
-  if (item.children) {
-    return (
-      <div>
-        <button
-          type="button"
-          onClick={() => setOpen((prev) => !prev)}
-          aria-expanded={open}
-          className={cn(
-            "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-            "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm"
-          )}
-        >
-          <item.icon className="h-4 w-4 shrink-0" />
-          <span className="flex-1 text-left">{item.title}</span>
-          <ChevronDown
-            className={cn("h-4 w-4 shrink-0 transition-transform", open && "rotate-180")}
-          />
-        </button>
-        {open && (
-          <div className="mt-1 flex flex-col gap-1 border-l border-sidebar-border pl-4">
-            {item.children.map((child) => (
-              <NavEntry
-                key={child.href ?? child.title}
-                item={child}
-                pathname={pathname}
-                onNavigate={onNavigate}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <Link
-      href={item.href!}
-      onClick={onNavigate}
-      className={cn(
-        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-        active
-          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm ring-1 ring-sidebar-ring/20"
-          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm"
-      )}
-    >
-      <item.icon className="h-4 w-4 shrink-0" />
-      {item.title}
-    </Link>
   );
 }

@@ -55,6 +55,9 @@ const config: Config = {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+          active: "hsl(var(--sidebar-active))",
+          "active-border": "hsl(var(--sidebar-active-border))",
+          "active-foreground": "hsl(var(--sidebar-active-foreground))",
         },
       },
       borderRadius: {
