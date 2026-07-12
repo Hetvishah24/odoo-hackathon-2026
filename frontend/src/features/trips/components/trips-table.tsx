@@ -42,6 +42,14 @@ function tripLabel(trip: TripRead): string {
   return `TR-${String(trip.id).padStart(3, "0")}`;
 }
 
+function formatTripDate(value: string): string {
+  return new Date(value).toLocaleDateString(undefined, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export function TripsTable() {
   const router = useRouter();
   const { hasPermission } = useAuth();
@@ -194,6 +202,7 @@ export function TripsTable() {
           <TableHeader>
             <TableRow>
               <TableHead>Trip</TableHead>
+              <TableHead>Date</TableHead>
               <TableHead>Route</TableHead>
               <TableHead>Vehicle</TableHead>
               <TableHead>Driver</TableHead>
@@ -206,6 +215,7 @@ export function TripsTable() {
               Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={index}>
                   <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-16" /></TableCell>
@@ -221,6 +231,7 @@ export function TripsTable() {
                   onClick={() => router.push(`/trips/${trip.id}`)}
                 >
                   <TableCell className="font-medium">{tripLabel(trip)}</TableCell>
+                  <TableCell>{formatTripDate(trip.created_at)}</TableCell>
                   <TableCell>
                     {trip.source} → {trip.destination}
                   </TableCell>
@@ -276,7 +287,7 @@ export function TripsTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={canWrite ? 6 : 5} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={canWrite ? 7 : 6} className="h-24 text-center text-muted-foreground">
                   No trips found.
                 </TableCell>
               </TableRow>

@@ -12,7 +12,7 @@ import {
 } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { chartTooltipContentStyle, chartTooltipItemStyle, chartTooltipLabelStyle } from "@/lib/chart-theme";
+import { CHART_BLUE, CHART_SLATE, chartAxisTickStyle, chartLegendTextStyle, chartTooltipContentStyle, chartTooltipItemStyle, chartTooltipLabelStyle } from "@/lib/chart-theme";
 import { formatCurrency, getRoiColorClass } from "@/lib/utils";
 import { StatCard } from "@/features/dashboard/components/stat-card";
 import type { FinancialOverview } from "@/features/dashboard/types";
@@ -40,20 +40,20 @@ export function FinancialOverviewPanel({ data }: { data: FinancialOverview }) {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.cost_breakdown}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
-                <XAxis dataKey="registration_number" tick={{ fontSize: 12 }} />
-                <YAxis />
+                <XAxis dataKey="registration_number" tick={chartAxisTickStyle} />
+                <YAxis tick={chartAxisTickStyle} />
                 <Tooltip
                   contentStyle={chartTooltipContentStyle}
                   labelStyle={chartTooltipLabelStyle}
                   itemStyle={chartTooltipItemStyle}
                 />
-                <Legend />
-                <Bar dataKey="fuel_cost" name="Fuel" stackId="cost" fill="hsl(var(--primary))" />
+                <Legend wrapperStyle={chartLegendTextStyle} />
+                <Bar dataKey="fuel_cost" name="Fuel" stackId="cost" fill={CHART_BLUE} />
                 <Bar
                   dataKey="maintenance_cost"
                   name="Maintenance"
                   stackId="cost"
-                  fill="hsl(var(--muted-foreground))"
+                  fill={CHART_SLATE}
                 />
               </BarChart>
             </ResponsiveContainer>

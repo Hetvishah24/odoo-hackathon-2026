@@ -21,3 +21,17 @@ export const chartTooltipLabelStyle: CSSProperties = {
 export const chartTooltipItemStyle: CSSProperties = {
   color: "hsl(var(--popover-foreground))",
 };
+
+/** Fixed, theme-stable data-series colors for chart fills (bars/lines/slices).
+ *
+ * Don't use `hsl(var(--primary))` here: shadcn's dark theme inverts --primary to near-white
+ * (0 0% 98%) for button contrast, so a bar using it renders white-on-white-ish in dark mode
+ * and the data effectively disappears. These are fixed hex values instead, so a series reads
+ * the same color in both themes. */
+export const CHART_BLUE = "#3b82f6";
+export const CHART_SLATE = "#64748b";
+
+// Axis ticks/legend default to recharts' hardcoded '#666'/'#000' otherwise, which reads
+// poorly (sometimes near-invisible) against a dark card background.
+export const chartAxisTickStyle = { fontSize: 12, fill: "hsl(var(--muted-foreground))" };
+export const chartLegendTextStyle: CSSProperties = { color: "hsl(var(--muted-foreground))" };

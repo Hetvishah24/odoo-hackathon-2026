@@ -44,10 +44,6 @@ export const navItems: NavItem[] = [
     permissions: ["reports:read"],
   },
   {
-    title: "Settings",
-    href: "/settings",
-  },
-  {
     title: "Users",
     href: "/users",
     permissions: ["users:read"],

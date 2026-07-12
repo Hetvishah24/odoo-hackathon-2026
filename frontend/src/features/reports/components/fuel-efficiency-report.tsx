@@ -3,7 +3,7 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { getErrorMessage } from "@/lib/api-client";
-import { chartTooltipContentStyle, chartTooltipItemStyle, chartTooltipLabelStyle } from "@/lib/chart-theme";
+import { CHART_BLUE, chartAxisTickStyle, chartTooltipContentStyle, chartTooltipItemStyle, chartTooltipLabelStyle } from "@/lib/chart-theme";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -43,15 +43,15 @@ export function FuelEfficiencyReport({ filters }: { filters: ReportFilters }) {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
-                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                <YAxis />
+                <XAxis dataKey="label" tick={chartAxisTickStyle} />
+                <YAxis tick={chartAxisTickStyle} />
                 <Tooltip
                   formatter={(value) => (value == null ? "N/A" : value)}
                   contentStyle={chartTooltipContentStyle}
                   labelStyle={chartTooltipLabelStyle}
                   itemStyle={chartTooltipItemStyle}
                 />
-                <Bar dataKey="fuel_efficiency_km_per_l" name="km/L" fill="hsl(var(--primary))" />
+                <Bar dataKey="fuel_efficiency_km_per_l" name="km/L" fill={CHART_BLUE} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
