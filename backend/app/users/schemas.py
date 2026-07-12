@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from app.drivers.schemas import DriverRead
 from app.roles.schemas import RoleRead
 
 # bcrypt only uses the first 72 bytes of a password
@@ -16,6 +17,7 @@ class UserCreate(BaseModel):
     region: str | None = Field(default=None, max_length=100)
     role_id: int | None = None
     is_active: bool = True
+    is_approved: bool = False
 
 
 class UserUpdate(BaseModel):
@@ -26,6 +28,7 @@ class UserUpdate(BaseModel):
     region: str | None = Field(default=None, max_length=100)
     role_id: int | None = None
     is_active: bool | None = None
+    is_approved: bool | None = None
 
 
 class UserRead(BaseModel):
@@ -37,5 +40,24 @@ class UserRead(BaseModel):
     contact_number: str | None
     region: str | None
     is_active: bool
+    is_approved: bool
     role: RoleRead | None
     created_at: datetime
+
+
+class ProfileCompletionRequest(BaseModel):
+    """Step-2 registration payload. Which fields are required is driven by the
+    caller's role (see ROLE_PROFILE_REQUIRED_FIELDS in app/users/router.py) —
+    one dynamic endpoint for every role instead of a router per role.
+    """
+
+    contact_number: str | None = Field(default=None, max_length=20)
+    region: str | None = Field(default=None, max_length=100)
+    license_number: str | None = Field(default=None, min_length=1, max_length=50)
+    license_category: str | None = Field(default=None, min_length=1, max_length=50)
+    license_expiry_date: date | None = None
+
+
+class MyProfileResponse(BaseModel):
+    user: UserRead
+    driver: DriverRead | None = None
