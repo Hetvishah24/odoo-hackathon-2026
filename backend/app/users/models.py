@@ -14,6 +14,7 @@ class User(Base, TimestampMixin):
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_approved: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_profile_complete: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     contact_number: Mapped[str | None] = mapped_column(String(20))
     region: Mapped[str | None] = mapped_column(String(100))
     role_id: Mapped[int | None] = mapped_column(ForeignKey("roles.id"))

@@ -126,6 +126,7 @@ def seed_db(db: Session) -> None:
                 hashed_password=hash_password(settings.admin_password),
                 role=admin_role,
                 is_approved=True,
+                is_profile_complete=True,
             )
         )
         db.commit()

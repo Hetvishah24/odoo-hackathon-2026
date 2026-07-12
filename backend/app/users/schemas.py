@@ -18,6 +18,7 @@ class UserCreate(BaseModel):
     role_id: int | None = None
     is_active: bool = True
     is_approved: bool = False
+    is_profile_complete: bool = False
 
 
 class UserUpdate(BaseModel):
@@ -29,6 +30,7 @@ class UserUpdate(BaseModel):
     role_id: int | None = None
     is_active: bool | None = None
     is_approved: bool | None = None
+    is_profile_complete: bool | None = None
 
 
 class UserRead(BaseModel):
@@ -41,6 +43,7 @@ class UserRead(BaseModel):
     region: str | None
     is_active: bool
     is_approved: bool
+    is_profile_complete: bool
     role: RoleRead | None
     created_at: datetime
 

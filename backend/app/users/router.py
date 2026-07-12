@@ -94,8 +94,9 @@ def complete_my_profile(
         current_user.contact_number = payload.contact_number
         if payload.region is not None:
             current_user.region = payload.region
-        db.add(current_user)
 
+    current_user.is_profile_complete = True
+    db.add(current_user)
     db.commit()
     db.refresh(current_user)
     if driver is not None:
