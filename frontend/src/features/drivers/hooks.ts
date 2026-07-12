@@ -39,6 +39,7 @@ export function useUpdateDriver() {
       driversApi.update(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [DRIVERS_KEY] });
+      queryClient.invalidateQueries({ queryKey: [DISPATCHABLE_DRIVERS_KEY] });
       toast.success("Driver updated");
     },
     onError: (error) => toast.error(getErrorMessage(error)),
@@ -51,6 +52,7 @@ export function useDeleteDriver() {
     mutationFn: (id: number) => driversApi.remove(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [DRIVERS_KEY] });
+      queryClient.invalidateQueries({ queryKey: [DISPATCHABLE_DRIVERS_KEY] });
       toast.success("Driver deleted");
     },
     onError: (error) => toast.error(getErrorMessage(error)),

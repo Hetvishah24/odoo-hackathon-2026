@@ -13,6 +13,17 @@ export interface ExpenseRead {
   updated_at: string;
 }
 
+export interface ExpenseCreate {
+  vehicle_id?: number | null;
+  trip_id?: number | null;
+  type: ExpenseType;
+  amount: number;
+  date: string;
+  description?: string | null;
+}
+
+export type ExpenseUpdate = Partial<ExpenseCreate>;
+
 export interface ExpenseListParams {
   page?: number;
   page_size?: number;

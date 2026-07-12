@@ -18,6 +18,11 @@ export const driversApi = {
     return data;
   },
 
+  dispatchable: async (): Promise<DriverRead[]> => {
+    const { data } = await apiClient.get<DriverRead[]>("/drivers/dispatchable");
+    return data;
+  },
+
   update: async (id: number, payload: DriverUpdate): Promise<DriverRead> => {
     const { data } = await apiClient.patch<DriverRead>(`/drivers/${id}`, payload);
     return data;

@@ -10,6 +10,16 @@ export interface FuelLogRead {
   updated_at: string;
 }
 
+export interface FuelLogCreate {
+  vehicle_id: number;
+  trip_id?: number | null;
+  liters: number;
+  cost: number;
+  date: string;
+}
+
+export type FuelLogUpdate = Partial<FuelLogCreate>;
+
 export interface FuelLogListParams {
   page?: number;
   page_size?: number;
