@@ -1,3 +1,8 @@
+"use client";
+
+import * as React from "react";
+
+import { useVehicles } from "@/features/vehicles/hooks";
 import type { VehicleStatus, VehicleType } from "@/features/vehicles/types";
 
 export const vehicleTypes: VehicleType[] = ["truck", "van", "bike", "trailer", "other"];
@@ -23,4 +28,22 @@ const numberFormatter = new Intl.NumberFormat("en-IN");
 
 export function formatNumber(value: number): string {
   return numberFormatter.format(value);
+}
+
+/** vehicle_id -> registration number, for features that only get back a vehicle_id (Reports,
+ * Maintenance) and need to join it against the vehicles list client-side to display it. */
+export function useVehicleLookup() {
+  const { data } = useVehicles({ page: 1, page_size: 100, sort_by: "registration_number" });
+
+  return React.useMemo(() => {
+    const map = new Map<number, string>();
+    for (const vehicle of data?.items ?? []) {
+      map.set(vehicle.id, vehicle.registration_number);
+    }
+    return map;
+  }, [data]);
+}
+
+export function vehicleLabel(lookup: Map<number, string>, vehicleId: number): string {
+  return lookup.get(vehicleId) ?? `Vehicle #${vehicleId}`;
 }

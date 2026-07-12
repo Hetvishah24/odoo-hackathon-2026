@@ -131,3 +131,7 @@ def seed_db(db: Session) -> None:
         )
         db.commit()
         logger.info("Seeded admin user: %s", settings.admin_email)
+
+    from app.db.demo_data import seed_demo_data
+
+    seed_demo_data(db)

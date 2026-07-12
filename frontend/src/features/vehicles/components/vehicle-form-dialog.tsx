@@ -31,6 +31,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { VehicleDocumentsPanel } from "@/features/vehicle-documents/components/vehicle-documents-panel";
 import { useCreateVehicle, useUpdateVehicle } from "@/features/vehicles/hooks";
 import type { VehicleCreate, VehicleRead } from "@/features/vehicles/types";
 import { vehicleStatusLabels, vehicleStatuses, vehicleTypes } from "@/features/vehicles/utils";
@@ -59,6 +61,11 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: VehicleFormDi
   const isEdit = Boolean(vehicle);
   const createVehicle = useCreateVehicle();
   const updateVehicle = useUpdateVehicle();
+  const [section, setSection] = React.useState<"details" | "documents">("details");
+
+  React.useEffect(() => {
+    if (open) setSection("details");
+  }, [open]);
 
   const form = useForm<VehicleValues>({
     resolver: zodResolver(vehicleSchema),
@@ -123,6 +130,33 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: VehicleFormDi
             {isEdit ? "Update vehicle details." : "Add a vehicle to the fleet registry."}
           </DialogDescription>
         </DialogHeader>
+
+        {isEdit && (
+          <div className="inline-flex w-fit gap-1 rounded-lg border bg-card p-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={cn("rounded-md", section === "details" && "bg-primary text-primary-foreground hover:bg-primary/90")}
+              onClick={() => setSection("details")}
+            >
+              Details
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className={cn("rounded-md", section === "documents" && "bg-primary text-primary-foreground hover:bg-primary/90")}
+              onClick={() => setSection("documents")}
+            >
+              Documents
+            </Button>
+          </div>
+        )}
+
+        {isEdit && section === "documents" && vehicle ? (
+          <VehicleDocumentsPanel vehicleId={vehicle.id} />
+        ) : (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -288,6 +322,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: VehicleFormDi
             </DialogFooter>
           </form>
         </Form>
+        )}
       </DialogContent>
     </Dialog>
   );
