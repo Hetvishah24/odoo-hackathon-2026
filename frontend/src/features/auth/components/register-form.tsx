@@ -28,7 +28,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/features/auth/auth-context";
+
+const ROLE_OPTIONS = [
+  { value: "fleet_manager", label: "Fleet Manager" },
+  { value: "driver", label: "Driver" },
+  { value: "safety_officer", label: "Safety Officer" },
+  { value: "financial_analyst", label: "Financial Analyst" },
+] as const;
 
 const registerSchema = z
   .object({
@@ -36,6 +50,9 @@ const registerSchema = z
     email: z.string().email("Enter a valid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirm_password: z.string(),
+    role: z.enum(["fleet_manager", "driver", "safety_officer", "financial_analyst"], {
+      required_error: "Select a role",
+    }),
   })
   .refine((values) => values.password === values.confirm_password, {
     message: "Passwords do not match",
@@ -50,7 +67,13 @@ export function RegisterForm() {
 
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { full_name: "", email: "", password: "", confirm_password: "" },
+    defaultValues: {
+      full_name: "",
+      email: "",
+      password: "",
+      confirm_password: "",
+      role: undefined,
+    },
   });
 
   const onSubmit = async (values: RegisterValues) => {
@@ -59,8 +82,10 @@ export function RegisterForm() {
         full_name: values.full_name,
         email: values.email,
         password: values.password,
+        role: values.role,
       });
-      router.push("/dashboard");
+      toast.success("Account created. Please sign in.");
+      router.push("/login");
     } catch (error) {
       toast.error(getErrorMessage(error));
     }
@@ -123,6 +148,30 @@ export function RegisterForm() {
                   <FormControl>
                     <Input type="password" autoComplete="new-password" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Role</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your role" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {ROLE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

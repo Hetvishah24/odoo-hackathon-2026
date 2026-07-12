@@ -12,6 +12,7 @@ interface AuthContextValue {
   /** True while the initial session restore is in flight. */
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<void>;
+  /** Creates the account only — does not sign in. Caller should route to /login. */
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
   /** True when the user's role grants every listed permission ("*" grants all). */
@@ -44,13 +45,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(await authApi.me());
   }, []);
 
-  const register = React.useCallback(
-    async (payload: RegisterPayload) => {
-      await authApi.register(payload);
-      await login({ email: payload.email, password: payload.password });
-    },
-    [login]
-  );
+  const register = React.useCallback(async (payload: RegisterPayload) => {
+    await authApi.register(payload);
+  }, []);
 
   const logout = React.useCallback(() => {
     tokenStorage.clear();
