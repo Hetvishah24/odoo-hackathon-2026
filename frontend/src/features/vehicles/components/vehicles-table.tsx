@@ -248,11 +248,6 @@ export function VehiclesTable() {
         </Table>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Registration No. must be unique · Retired/In Shop vehicles are hidden from the trip
-        dispatcher.
-      </p>
-
       {data && data.pages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">

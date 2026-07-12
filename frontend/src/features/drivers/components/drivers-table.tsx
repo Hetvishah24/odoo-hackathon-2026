@@ -388,9 +388,6 @@ export function DriversTable() {
         </p>
       )}
 
-      <p className="text-sm text-amber-700 dark:text-amber-400">
-        Rule: Expired license or suspended status blocks trip assignment.
-      </p>
 
       <DriverFormDialog open={formOpen} onOpenChange={setFormOpen} driver={editingDriver} />
 
