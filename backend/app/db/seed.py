@@ -18,6 +18,67 @@ DEFAULT_USER_ROLE = "user"
 DEFAULT_ROLES = [
     {"name": ADMIN_ROLE, "description": "Full access", "permissions": ["*"]},
     {"name": DEFAULT_USER_ROLE, "description": "Standard user", "permissions": []},
+    # Permission matrix combines Dev A's §8 (vehicles/maintenance/dashboard) and Dev B's §8
+    # (drivers/trips/fuel/expenses/reports) tables from the frozen contract - both devs edit
+    # this same list, so coordinate here rather than duplicating role entries.
+    {
+        "name": "fleet_manager",
+        "description": "Manages fleet operations end-to-end",
+        "permissions": [
+            "vehicles:read",
+            "vehicles:write",
+            "maintenance:read",
+            "maintenance:write",
+            "dashboard:read",
+            "drivers:read",
+            "drivers:write",
+            "trips:read",
+            "trips:write",
+            "fuel:read",
+            "fuel:write",
+            "expenses:read",
+            "expenses:write",
+            "reports:read",
+        ],
+    },
+    {
+        "name": "driver",
+        "description": "Drives trips and logs fuel/expenses",
+        "permissions": [
+            "vehicles:read",
+            "dashboard:read",
+            "drivers:read",
+            "trips:read",
+            "trips:write",
+            "fuel:write",
+            "expenses:write",
+        ],
+    },
+    {
+        "name": "safety_officer",
+        "description": "Oversees driver safety and compliance",
+        "permissions": [
+            "vehicles:read",
+            "dashboard:read",
+            "drivers:read",
+            "drivers:write",
+            "trips:read",
+            "reports:read",
+        ],
+    },
+    {
+        "name": "financial_analyst",
+        "description": "Tracks costs, fuel spend and ROI",
+        "permissions": [
+            "vehicles:read",
+            "maintenance:read",
+            "dashboard:read",
+            "trips:read",
+            "fuel:read",
+            "expenses:read",
+            "reports:read",
+        ],
+    },
 ]
 
 

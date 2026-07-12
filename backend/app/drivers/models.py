@@ -1,0 +1,33 @@
+import enum
+from datetime import date
+
+from sqlalchemy import Date, Enum, Float, ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.db.base import Base, TimestampMixin
+
+
+class DriverStatus(str, enum.Enum):
+    available = "available"
+    on_trip = "on_trip"
+    off_duty = "off_duty"
+    suspended = "suspended"
+
+
+class Driver(Base, TimestampMixin):
+    __tablename__ = "drivers"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    license_number: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    license_category: Mapped[str] = mapped_column(String(50), nullable=False)
+    license_expiry_date: Mapped[date] = mapped_column(Date, nullable=False)
+    contact_number: Mapped[str] = mapped_column(String(20), nullable=False)
+    safety_score: Mapped[float] = mapped_column(Float, default=100.0, nullable=False)
+    status: Mapped[DriverStatus] = mapped_column(
+        Enum(DriverStatus, name="driver_status", values_callable=lambda obj: [e.value for e in obj]),
+        default=DriverStatus.available,
+        nullable=False,
+    )
+    region: Mapped[str | None] = mapped_column(String(100), nullable=True)
