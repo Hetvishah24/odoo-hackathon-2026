@@ -8,24 +8,17 @@ export interface UserListParams extends ListParams {
   is_approved?: boolean;
 }
 
-export interface UserCreatePayload {
-  email: string;
-  password: string;
-  full_name: string;
+export interface UserUpdatePayload {
+  email?: string;
+  password?: string;
+  full_name?: string;
   role_id?: number | null;
   is_active?: boolean;
 }
 
-export type UserUpdatePayload = Partial<UserCreatePayload>;
-
 export const usersApi = {
   list: async (params: UserListParams): Promise<Page<User>> => {
     const { data } = await apiClient.get<Page<User>>("/users", { params });
-    return data;
-  },
-
-  create: async (payload: UserCreatePayload): Promise<User> => {
-    const { data } = await apiClient.post<User>("/users", payload);
     return data;
   },
 

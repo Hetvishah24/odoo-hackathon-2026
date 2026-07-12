@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
 
 import { getErrorMessage } from "@/lib/api-client";
@@ -42,6 +43,7 @@ function tripLabel(trip: TripRead): string {
 }
 
 export function TripsTable() {
+  const router = useRouter();
   const { hasPermission } = useAuth();
   const canWrite = hasPermission("trips:write");
 
@@ -213,7 +215,11 @@ export function TripsTable() {
               ))
             ) : data && data.items.length > 0 ? (
               data.items.map((trip) => (
-                <TableRow key={trip.id}>
+                <TableRow
+                  key={trip.id}
+                  className="cursor-pointer"
+                  onClick={() => router.push(`/trips/${trip.id}`)}
+                >
                   <TableCell className="font-medium">{tripLabel(trip)}</TableCell>
                   <TableCell>
                     {trip.source} → {trip.destination}
@@ -224,7 +230,7 @@ export function TripsTable() {
                     <TripStatusBadge status={trip.status} />
                   </TableCell>
                   {canWrite && (
-                    <TableCell className="text-right">
+                    <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
                       <div className="flex justify-end gap-2">
                         {trip.status === "draft" && (
                           <>

@@ -37,9 +37,4 @@ export const driversApi = {
     });
     return data;
   },
-
-  dispatchable: async (): Promise<DriverRead[]> => {
-    const { data } = await apiClient.get<DriverRead[]>("/drivers/dispatchable");
-    return data;
-  },
 };

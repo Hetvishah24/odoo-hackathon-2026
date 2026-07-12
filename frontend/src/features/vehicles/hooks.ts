@@ -26,6 +26,14 @@ export function useDispatchableVehicles() {
   });
 }
 
+export function useVehicle(id: number | null) {
+  return useQuery({
+    queryKey: [VEHICLES_KEY, id],
+    queryFn: () => vehiclesApi.get(id as number),
+    enabled: id !== null,
+  });
+}
+
 export function useCreateVehicle() {
   const queryClient = useQueryClient();
   return useMutation({
