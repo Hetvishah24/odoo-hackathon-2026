@@ -12,7 +12,7 @@ from app.auth.schemas import (
     TokenResponse,
 )
 from app.core.deps import CurrentUser
-from app.core.exceptions import ConflictException, UnauthorizedException
+from app.core.exceptions import BadRequestException, ConflictException, UnauthorizedException
 from app.core.responses import SuccessResponse, ok
 from app.core.security import (
     REFRESH_TOKEN,
@@ -22,7 +22,6 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
-from app.db.seed import DEFAULT_USER_ROLE
 from app.db.session import get_db
 from app.roles.models import Role
 from app.users.models import User
@@ -50,12 +49,15 @@ def register(payload: RegisterRequest, db: DbSession):
     if existing:
         raise ConflictException("A user with this email already exists")
 
-    default_role = db.scalar(select(Role).where(Role.name == DEFAULT_USER_ROLE))
+    role = db.scalar(select(Role).where(Role.name == payload.role.value))
+    if role is None:
+        raise BadRequestException("Selected role is not available")
+
     user = User(
         email=payload.email,
         full_name=payload.full_name,
         hashed_password=hash_password(payload.password),
-        role=default_role,
+        role=role,
     )
     db.add(user)
     db.commit()
@@ -93,6 +95,10 @@ def update_me(payload: MeUpdate, current_user: CurrentUser, db: DbSession):
         current_user.full_name = payload.full_name
     if payload.password is not None:
         current_user.hashed_password = hash_password(payload.password)
+    if payload.contact_number is not None:
+        current_user.contact_number = payload.contact_number
+    if payload.region is not None:
+        current_user.region = payload.region
     db.add(current_user)
     db.commit()
     db.refresh(current_user)

@@ -6,13 +6,15 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.crud import CRUDBase
-from app.core.deps import require_permissions
-from app.core.exceptions import ConflictException
+from app.core.deps import CurrentUser, require_permissions
+from app.core.exceptions import ConflictException, ForbiddenException, NotFoundException
 from app.core.pagination import Page, PageParams
 from app.core.responses import SuccessResponse, ok
+from app.db.seed import DRIVER_ROLE
 from app.db.session import get_db
 from app.drivers.models import Driver, DriverStatus
-from app.drivers.schemas import DriverCreate, DriverRead, DriverUpdate
+from app.drivers.schemas import DriverCreate, DriverProfileCreate, DriverRead, DriverUpdate
+from app.users.models import User
 
 router = APIRouter()
 
@@ -21,8 +23,47 @@ DbSession = Annotated[Session, Depends(get_db)]
 driver_crud = CRUDBase(Driver, search_fields=["name", "license_number"])
 
 
+def _require_driver_role(current_user: User) -> None:
+    if current_user.role is None or current_user.role.name != DRIVER_ROLE:
+        raise ForbiddenException("Only users registered with the driver role have a driver profile")
+
+
 # Static sub-paths must be registered before the "/{driver_id}" route below,
-# otherwise FastAPI would try to parse "dispatchable"/"expiring-licenses" as an id.
+# otherwise FastAPI would try to parse "me"/"dispatchable"/"expiring-licenses" as an id.
+@router.get("/me", response_model=SuccessResponse[DriverRead])
+def read_my_driver_profile(current_user: CurrentUser, db: DbSession):
+    _require_driver_role(current_user)
+    driver = db.scalar(select(Driver).where(Driver.user_id == current_user.id))
+    if driver is None:
+        raise NotFoundException("Driver profile not completed yet")
+    return ok(driver, "Driver profile retrieved successfully.")
+
+
+@router.post(
+    "/me",
+    response_model=SuccessResponse[DriverRead],
+    status_code=status.HTTP_201_CREATED,
+)
+def complete_my_driver_profile(
+    payload: DriverProfileCreate, current_user: CurrentUser, db: DbSession
+):
+    _require_driver_role(current_user)
+
+    existing = db.scalar(select(Driver).where(Driver.user_id == current_user.id))
+    if existing:
+        raise ConflictException("Driver profile already completed")
+
+    driver = Driver(
+        user_id=current_user.id,
+        status=DriverStatus.available.value,
+        **payload.model_dump(),
+    )
+    db.add(driver)
+    db.commit()
+    db.refresh(driver)
+    return ok(driver, "Driver profile completed successfully.")
+
+
 @router.get(
     "/dispatchable",
     response_model=SuccessResponse[list[DriverRead]],

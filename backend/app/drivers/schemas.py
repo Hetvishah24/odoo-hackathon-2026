@@ -17,6 +17,17 @@ class DriverCreate(BaseModel):
     region: str | None = Field(default=None, max_length=100)
 
 
+class DriverProfileCreate(BaseModel):
+    """Role-specific details collected from a driver right after registration."""
+
+    name: str = Field(min_length=1, max_length=255)
+    license_number: str = Field(min_length=1, max_length=50)
+    license_category: str = Field(min_length=1, max_length=50)
+    license_expiry_date: date
+    contact_number: str = Field(min_length=1, max_length=20)
+    region: str | None = Field(default=None, max_length=100)
+
+
 class DriverUpdate(BaseModel):
     user_id: int | None = None
     name: str | None = Field(default=None, min_length=1, max_length=255)

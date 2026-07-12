@@ -13,23 +13,35 @@ from app.users.models import User
 logger = logging.getLogger(__name__)
 
 ADMIN_ROLE = "admin"
-DEFAULT_USER_ROLE = "user"
+FLEET_MANAGER_ROLE = "fleet_manager"
+DRIVER_ROLE = "driver"
+SAFETY_OFFICER_ROLE = "safety_officer"
+FINANCIAL_ANALYST_ROLE = "financial_analyst"
+
+# Roles a user may pick for themselves via POST /auth/register.
+# "admin" is provisioned separately (see settings.admin_email below) and is never self-assigned.
+SELF_REGISTERABLE_ROLES = [
+    FLEET_MANAGER_ROLE,
+    DRIVER_ROLE,
+    SAFETY_OFFICER_ROLE,
+    FINANCIAL_ANALYST_ROLE,
+]
 
 DEFAULT_ROLES = [
     {"name": ADMIN_ROLE, "description": "Full access", "permissions": ["*"]},
-    {"name": DEFAULT_USER_ROLE, "description": "Standard user", "permissions": []},
     # Permission matrix combines Dev A's §8 (vehicles/maintenance/dashboard) and Dev B's §8
     # (drivers/trips/fuel/expenses/reports) tables from the frozen contract - both devs edit
     # this same list, so coordinate here rather than duplicating role entries.
     {
-        "name": "fleet_manager",
-        "description": "Manages fleet operations end-to-end",
+        "name": FLEET_MANAGER_ROLE,
+        "description": (
+            "Oversees fleet assets, maintenance, vehicle lifecycle, and operational efficiency."
+        ),
         "permissions": [
             "vehicles:read",
             "vehicles:write",
             "maintenance:read",
             "maintenance:write",
-            "dashboard:read",
             "drivers:read",
             "drivers:write",
             "trips:read",
@@ -39,44 +51,47 @@ DEFAULT_ROLES = [
             "expenses:read",
             "expenses:write",
             "reports:read",
+            "dashboard:read",
         ],
     },
     {
-        "name": "driver",
-        "description": "Drives trips and logs fuel/expenses",
+        "name": DRIVER_ROLE,
+        "description": "Creates trips, assigns vehicles and drivers, and monitors active deliveries.",
         "permissions": [
             "vehicles:read",
-            "dashboard:read",
             "drivers:read",
             "trips:read",
             "trips:write",
             "fuel:write",
             "expenses:write",
+            "dashboard:read",
         ],
     },
     {
-        "name": "safety_officer",
-        "description": "Oversees driver safety and compliance",
+        "name": SAFETY_OFFICER_ROLE,
+        "description": "Ensures driver compliance, tracks license validity, and monitors safety scores.",
         "permissions": [
             "vehicles:read",
-            "dashboard:read",
             "drivers:read",
             "drivers:write",
             "trips:read",
             "reports:read",
+            "dashboard:read",
         ],
     },
     {
-        "name": "financial_analyst",
-        "description": "Tracks costs, fuel spend and ROI",
+        "name": FINANCIAL_ANALYST_ROLE,
+        "description": (
+            "Reviews operational expenses, fuel consumption, maintenance costs, and profitability."
+        ),
         "permissions": [
             "vehicles:read",
             "maintenance:read",
-            "dashboard:read",
             "trips:read",
             "fuel:read",
             "expenses:read",
             "reports:read",
+            "dashboard:read",
         ],
     },
 ]
