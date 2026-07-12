@@ -4,7 +4,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { toast } from "sonner";
 
 import { getErrorMessage } from "@/lib/api-client";
-import { driversApi, type DriverCreate, type DriverListParams, type DriverUpdate } from "@/features/drivers/api";
+import { driversApi, type DriverListParams, type DriverUpdate } from "@/features/drivers/api";
 
 export const DRIVERS_KEY = "drivers";
 export const DISPATCHABLE_DRIVERS_KEY = "drivers-dispatchable";
@@ -17,22 +17,10 @@ export function useDrivers(params: DriverListParams) {
   });
 }
 
-export function useDispatchableDrivers() {
+export function useExpiringDrivers(days = 30) {
   return useQuery({
-    queryKey: [DISPATCHABLE_DRIVERS_KEY],
-    queryFn: driversApi.dispatchable,
-  });
-}
-
-export function useCreateDriver() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: DriverCreate) => driversApi.create(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [DRIVERS_KEY] });
-      toast.success("Driver created");
-    },
-    onError: (error) => toast.error(getErrorMessage(error)),
+    queryKey: [DRIVERS_KEY, "expiring", days],
+    queryFn: () => driversApi.expiring(days),
   });
 }
 

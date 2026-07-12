@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/api-client";
 import type { ListParams, Page } from "@/lib/types";
-import type { DriverCreate, DriverRead, DriverUpdate } from "@/features/drivers/types";
+import type { DriverRead, DriverUpdate } from "@/features/drivers/types";
 
 export interface DriverListParams extends ListParams {
   status?: string;
@@ -13,8 +13,8 @@ export const driversApi = {
     return data;
   },
 
-  create: async (payload: DriverCreate): Promise<DriverRead> => {
-    const { data } = await apiClient.post<DriverRead>("/drivers", payload);
+  get: async (id: number): Promise<DriverRead> => {
+    const { data } = await apiClient.get<DriverRead>(`/drivers/${id}`);
     return data;
   },
 
@@ -26,9 +26,10 @@ export const driversApi = {
   remove: async (id: number): Promise<void> => {
     await apiClient.delete(`/drivers/${id}`);
   },
-
-  dispatchable: async (): Promise<DriverRead[]> => {
-    const { data } = await apiClient.get<DriverRead[]>("/drivers/dispatchable");
+  expiring: async (days = 30): Promise<DriverRead[]> => {
+    const { data } = await apiClient.get<DriverRead[]>(`/drivers/expiring-licenses`, {
+      params: { days },
+    });
     return data;
   },
 };

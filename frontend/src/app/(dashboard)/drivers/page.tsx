@@ -7,7 +7,10 @@ import { DriversTable } from "@/features/drivers/components/drivers-table";
 export default function DriversPage() {
   return (
     <div>
-      <PageHeader title="Drivers" description="Monitor driver availability and license status." />
+      <PageHeader
+        title="Drivers & Safety Profiles"
+        description="Monitor driver availability, license status, and safety scores."
+      />
 
       <PermissionGuard permissions={["drivers:read"]}>
         <DriversTable />

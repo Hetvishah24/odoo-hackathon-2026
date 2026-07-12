@@ -31,8 +31,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { DriverCreate, DriverRead, DriverUpdate } from "@/features/drivers/types";
-import { useCreateDriver, useUpdateDriver } from "@/features/drivers/hooks";
+import type { DriverRead, DriverUpdate } from "@/features/drivers/types";
+import { useUpdateDriver } from "@/features/drivers/hooks";
 
 const driverSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -57,7 +57,6 @@ const statuses = ["available", "on_trip", "off_duty", "suspended"] as const;
 
 export function DriverFormDialog({ open, onOpenChange, driver }: DriverFormDialogProps) {
   const isEdit = Boolean(driver);
-  const createDriver = useCreateDriver();
   const updateDriver = useUpdateDriver();
 
   const form = useForm<DriverValues>({
@@ -90,7 +89,7 @@ export function DriverFormDialog({ open, onOpenChange, driver }: DriverFormDialo
   }, [open, driver, form]);
 
   const onSubmit = async (values: DriverValues) => {
-    const payload: DriverCreate = {
+    const payload = {
       name: values.name,
       license_number: values.license_number,
       license_category: values.license_category,
@@ -104,24 +103,26 @@ export function DriverFormDialog({ open, onOpenChange, driver }: DriverFormDialo
     if (isEdit && driver) {
       await updateDriver.mutateAsync({ id: driver.id, payload });
     } else {
-      await createDriver.mutateAsync(payload);
+      // Creation of drivers is handled via onboarding; close the dialog.
+      // Do not attempt to create drivers from this UI.
     }
     onOpenChange(false);
   };
 
-  const isPending = createDriver.isPending || updateDriver.isPending;
+  const isPending = updateDriver.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit Driver" : "New Driver"}</DialogTitle>
-          <DialogDescription>
-            {isEdit ? "Update driver details." : "Create a new driver record."}
-          </DialogDescription>
+          <DialogTitle>Edit Driver</DialogTitle>
+          <DialogDescription>Update driver details.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {driver && driver.user_id == null && (
+              <div className="rounded-md border bg-muted p-2 text-sm text-muted-foreground">No linked user account.</div>
+            )}
             <FormField
               control={form.control}
               name="name"
@@ -192,6 +193,28 @@ export function DriverFormDialog({ open, onOpenChange, driver }: DriverFormDialo
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
+                name="safety_score"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Safety score</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={field.value ?? ""}
+                        onChange={(event) =>
+                          field.onChange(event.target.value === "" ? undefined : Number(event.target.value))
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="status"
                 render={({ field }) => (
                   <FormItem>
@@ -232,9 +255,9 @@ export function DriverFormDialog({ open, onOpenChange, driver }: DriverFormDialo
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
+              <Button type="submit" disabled={isPending || !isEdit}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEdit ? "Save changes" : "Create driver"}
+                Save changes
               </Button>
             </DialogFooter>
           </form>

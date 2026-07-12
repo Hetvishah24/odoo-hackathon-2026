@@ -15,15 +15,14 @@ export interface DriverRead {
   updated_at: string;
 }
 
-export interface DriverCreate {
-  name: string;
-  license_number: string;
-  license_category: string;
-  license_expiry_date: string;
-  contact_number: string;
+export interface DriverUpdate {
+  user_id?: number | null;
+  name?: string;
+  license_number?: string;
+  license_category?: string;
+  license_expiry_date?: string;
+  contact_number?: string;
   safety_score?: number;
   status?: DriverStatus;
   region?: string | null;
 }
-
-export type DriverUpdate = Partial<DriverCreate>;
