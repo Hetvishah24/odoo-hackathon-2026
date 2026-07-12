@@ -9,7 +9,7 @@ import { exportNodeToPdf } from "@/lib/pdf-export";
 
 interface ExportPdfButtonProps {
   /** Ref to the DOM node whose current contents (tables, charts, cards) get captured. */
-  targetRef: React.RefObject<HTMLElement>;
+  targetRef: React.RefObject<HTMLElement | null>;
   filename: string;
   title?: string;
   label?: string;
