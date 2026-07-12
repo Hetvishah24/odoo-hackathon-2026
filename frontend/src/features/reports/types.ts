@@ -34,3 +34,12 @@ export interface FleetUtilizationResponse {
   fleet_utilization_pct: number;
   per_vehicle: FleetUtilizationRow[];
 }
+
+export type ReportType = "fuel-efficiency" | "utilization" | "cost" | "roi";
+
+export interface ReportFilters {
+  vehicle_id?: number;
+  region?: string;
+  date_from?: string;
+  date_to?: string;
+}
