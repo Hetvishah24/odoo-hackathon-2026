@@ -6,13 +6,21 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/api-client";
 import { driversApi, type DriverCreate, type DriverListParams, type DriverUpdate } from "@/features/drivers/api";
 
-const DRIVERS_KEY = "drivers";
+export const DRIVERS_KEY = "drivers";
+export const DISPATCHABLE_DRIVERS_KEY = "drivers-dispatchable";
 
 export function useDrivers(params: DriverListParams) {
   return useQuery({
     queryKey: [DRIVERS_KEY, params],
     queryFn: () => driversApi.list(params),
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useDispatchableDrivers() {
+  return useQuery({
+    queryKey: [DISPATCHABLE_DRIVERS_KEY],
+    queryFn: driversApi.dispatchable,
   });
 }
 

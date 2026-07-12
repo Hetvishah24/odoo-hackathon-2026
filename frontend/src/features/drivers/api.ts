@@ -26,4 +26,9 @@ export const driversApi = {
   remove: async (id: number): Promise<void> => {
     await apiClient.delete(`/drivers/${id}`);
   },
+
+  dispatchable: async (): Promise<DriverRead[]> => {
+    const { data } = await apiClient.get<DriverRead[]>("/drivers/dispatchable");
+    return data;
+  },
 };

@@ -30,3 +30,20 @@ export interface TripListParams {
   date_from?: string;
   date_to?: string;
 }
+
+export interface TripCreate {
+  source: string;
+  destination: string;
+  vehicle_id: number;
+  driver_id: number;
+  cargo_weight: number;
+  planned_distance: number;
+}
+
+export type TripUpdate = Partial<TripCreate>;
+
+export interface TripComplete {
+  end_odometer: number;
+  fuel_consumed: number;
+  actual_distance: number;
+}

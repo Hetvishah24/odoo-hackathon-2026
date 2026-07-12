@@ -20,23 +20,28 @@ export const navItems: NavItem[] = [
   {
     title: "Drivers",
     href: "/drivers",
+    permissions: ["drivers:read"],
   },
   {
     title: "Trips",
     href: "/trips",
+    permissions: ["trips:read"],
   },
   {
     title: "Maintenance",
     href: "/maintenance",
+    permissions: ["maintenance:read"],
   },
   {
     title: "Fuel & Expenses",
     href: "/fuel-logs",
     activePaths: ["/expenses"],
+    permissions: ["fuel:read"],
   },
   {
     title: "Analytics",
     href: "/analytics",
+    permissions: ["reports:read"],
   },
   {
     title: "Settings",

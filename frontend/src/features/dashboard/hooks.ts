@@ -4,9 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 
 import { dashboardApi } from "@/features/dashboard/api";
 
+export const DASHBOARD_KEY = "dashboard";
+
 export function useDashboard() {
   return useQuery({
-    queryKey: ["dashboard"],
+    queryKey: [DASHBOARD_KEY],
     queryFn: dashboardApi.get,
   });
 }
