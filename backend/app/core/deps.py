@@ -31,6 +31,19 @@ def get_current_user(
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
+def has_permission(user: User, *required: str) -> bool:
+    """Plain boolean permission check: "*" grants everything, otherwise every
+    string in `required` must be present on the user's role. No approval-gate
+    logic here - that's layered on top by require_permissions() below for
+    route dependencies, and handled separately by callers (e.g. the dashboard
+    endpoint) that want to degrade gracefully instead of raising.
+    """
+    granted = set(user.role.permissions) if user.role else set()
+    if "*" in granted:
+        return True
+    return all(permission in granted for permission in required)
+
+
 def require_permissions(*required: str):
     """Dependency factory enforcing RBAC permissions.
 
@@ -50,9 +63,8 @@ def require_permissions(*required: str):
             return user
         if not user.is_approved:
             raise ForbiddenException("Your account is pending admin approval")
-        missing = [permission for permission in required if permission not in granted]
-        if missing:
-            raise ForbiddenException(f"Missing permissions: {', '.join(missing)}")
+        if not has_permission(user, *required):
+            raise ForbiddenException(f"Missing permissions: {', '.join(required)}")
         return user
 
     return checker

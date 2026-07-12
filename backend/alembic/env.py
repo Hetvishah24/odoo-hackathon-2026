@@ -8,8 +8,14 @@ from app.db.base import Base
 
 # Import all models so autogenerate can see them
 from app.drivers import models as drivers_models  # noqa: F401
+from app.expenses import models as expenses_models  # noqa: F401
+from app.fuel import models as fuel_models  # noqa: F401
+from app.maintenance import models as maintenance_models  # noqa: F401
 from app.roles import models as roles_models  # noqa: F401
+from app.trips import models as trips_models  # noqa: F401
 from app.users import models as users_models  # noqa: F401
+from app.vehicle_documents import models as vehicle_documents_models  # noqa: F401
+from app.vehicles import models as vehicles_models  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)
