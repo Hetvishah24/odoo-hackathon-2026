@@ -17,6 +17,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -28,19 +35,31 @@ import {
 } from "@/components/ui/table";
 import { useAuth } from "@/features/auth/auth-context";
 import type { User } from "@/features/auth/types";
-import { useUsers } from "@/features/users/hooks";
+import { useApproveUser, useUsers } from "@/features/users/hooks";
 import { DeleteUserDialog } from "@/features/users/components/delete-user-dialog";
 import { UserFormDialog } from "@/features/users/components/user-form-dialog";
 
 const PAGE_SIZE = 10;
 
+/** Whether the current user can approve pending accounts of this specific role —
+ * "<role>:approve" is a per-role permission (see PATCH /roles/{id}), not a fixed
+ * "users:write" check, so an admin can delegate approval without granting full
+ * user-management access. */
+function canApproveRole(hasPermission: (...p: string[]) => boolean, roleName: string | undefined) {
+  return Boolean(roleName) && hasPermission(`${roleName}:approve`);
+}
+
 export function UsersTable() {
   const { hasPermission } = useAuth();
   const canWrite = hasPermission("users:write");
+  const approveUser = useApproveUser();
 
   const [page, setPage] = React.useState(1);
   const [searchInput, setSearchInput] = React.useState("");
   const search = useDebounce(searchInput);
+  const [approvalFilter, setApprovalFilter] = React.useState<"all" | "pending" | "approved">(
+    "all"
+  );
 
   const [formOpen, setFormOpen] = React.useState(false);
   const [editingUser, setEditingUser] = React.useState<User | null>(null);
@@ -50,6 +69,7 @@ export function UsersTable() {
     page,
     page_size: PAGE_SIZE,
     search: search || undefined,
+    is_approved: approvalFilter === "all" ? undefined : approvalFilter === "approved",
     sort_by: "created_at",
     sort_order: "desc",
   });
@@ -57,7 +77,7 @@ export function UsersTable() {
   // Snap back when a search shrinks the result set below the current page
   React.useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, approvalFilter]);
 
   const openCreate = () => {
     setEditingUser(null);
@@ -80,15 +100,30 @@ export function UsersTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2">
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search users..."
-            className="pl-9"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-          />
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative w-full max-w-sm">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search users..."
+              className="pl-9"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+            />
+          </div>
+          <Select
+            value={approvalFilter}
+            onValueChange={(value) => setApprovalFilter(value as typeof approvalFilter)}
+          >
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Approval" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All approval states</SelectItem>
+              <SelectItem value="pending">Pending approval</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         {canWrite && (
           <Button onClick={openCreate}>
@@ -105,6 +140,7 @@ export function UsersTable() {
               <TableHead>User</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Approval</TableHead>
               <TableHead>Created</TableHead>
               {canWrite && <TableHead className="w-[50px]" />}
             </TableRow>
@@ -124,6 +160,7 @@ export function UsersTable() {
                   </TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                   {canWrite && <TableCell />}
                 </TableRow>
@@ -149,6 +186,23 @@ export function UsersTable() {
                     <Badge variant={user.is_active ? "outline" : "destructive"}>
                       {user.is_active ? "Active" : "Inactive"}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {user.is_approved ? (
+                      <Badge variant="outline" className="border-green-600 text-green-700 dark:text-green-400">
+                        Approved
+                      </Badge>
+                    ) : canApproveRole(hasPermission, user.role?.name) ? (
+                      <Button
+                        size="sm"
+                        disabled={approveUser.isPending}
+                        onClick={() => approveUser.mutate(user.id)}
+                      >
+                        Approve
+                      </Button>
+                    ) : (
+                      <Badge variant="secondary">Pending</Badge>
+                    )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {new Date(user.created_at).toLocaleDateString()}
@@ -178,7 +232,7 @@ export function UsersTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={canWrite ? 5 : 4} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={canWrite ? 6 : 5} className="h-24 text-center text-muted-foreground">
                   No users found.
                 </TableCell>
               </TableRow>

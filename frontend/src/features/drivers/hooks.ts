@@ -4,7 +4,8 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { toast } from "sonner";
 
 import { getErrorMessage } from "@/lib/api-client";
-import { driversApi, type DriverListParams, type DriverUpdate } from "@/features/drivers/api";
+import { driversApi, type DriverListParams } from "@/features/drivers/api";
+import type { DriverUpdate } from "@/features/drivers/types";
 
 export const DRIVERS_KEY = "drivers";
 export const DISPATCHABLE_DRIVERS_KEY = "drivers-dispatchable";
@@ -21,6 +22,13 @@ export function useExpiringDrivers(days = 30) {
   return useQuery({
     queryKey: [DRIVERS_KEY, "expiring", days],
     queryFn: () => driversApi.expiring(days),
+  });
+}
+
+export function useDispatchableDrivers() {
+  return useQuery({
+    queryKey: [DISPATCHABLE_DRIVERS_KEY],
+    queryFn: driversApi.dispatchable,
   });
 }
 

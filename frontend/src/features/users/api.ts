@@ -5,6 +5,7 @@ import type { User } from "@/features/auth/types";
 export interface UserListParams extends ListParams {
   role_id?: number;
   is_active?: boolean;
+  is_approved?: boolean;
 }
 
 export interface UserCreatePayload {
@@ -35,5 +36,10 @@ export const usersApi = {
 
   remove: async (id: number): Promise<void> => {
     await apiClient.delete(`/users/${id}`);
+  },
+
+  approve: async (id: number): Promise<User> => {
+    const { data } = await apiClient.post<User>(`/users/${id}/approve`);
+    return data;
   },
 };

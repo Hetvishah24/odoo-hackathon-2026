@@ -62,3 +62,15 @@ export function useDeleteUser() {
     onError: (error) => toast.error(getErrorMessage(error)),
   });
 }
+
+export function useApproveUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => usersApi.approve(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [USERS_KEY] });
+      toast.success("User approved");
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  });
+}
