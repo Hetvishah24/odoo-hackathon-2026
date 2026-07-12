@@ -1,4 +1,4 @@
-# Full-Stack Hackathon Starter
+# Full-Stack TransitOps
 
 A reusable, domain-agnostic starter for building CRUD/business applications fast. Bring your own problem statement — the plumbing is done.
 

@@ -8,6 +8,9 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/auth-context";
 import { navItems, type NavItem } from "@/components/layout/nav-items";
+import { AuthGuard } from "@/features/auth/components/auth-guard";
+import { Header } from "@/components/layout/header";
+import { Sidebar } from "@/components/layout/sidebar";
 
 function isItemActive(item: NavItem, pathname: string): boolean {
   if (item.href) {
@@ -24,6 +27,22 @@ function filterVisible(items: NavItem[], hasPermission: (...p: string[]) => bool
       item.children ? { ...item, children: filterVisible(item.children, hasPermission) } : item
     )
     .filter((item) => !item.children || item.children.length > 0);
+}
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthGuard>
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Header />
+          <main className="flex-1 bg-background p-6 md:p-8">
+            <div className="mx-auto w-full max-w-6xl">{children}</div>
+          </main>
+        </div>
+      </div>
+    </AuthGuard>
+  );
 }
 
 export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
@@ -70,7 +89,7 @@ function NavEntry({
           aria-expanded={open}
           className={cn(
             "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-            "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm"
           )}
         >
           <item.icon className="h-4 w-4 shrink-0" />
@@ -102,8 +121,8 @@ function NavEntry({
       className={cn(
         "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
         active
-          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
-          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm ring-1 ring-sidebar-ring/20"
+          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm"
       )}
     >
       <item.icon className="h-4 w-4 shrink-0" />

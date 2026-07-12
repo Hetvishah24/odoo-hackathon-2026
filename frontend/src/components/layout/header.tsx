@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, Menu } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 
 import { APP_NAME } from "@/lib/config";
 import { getInitials } from "@/lib/utils";
@@ -21,6 +22,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { useAuth } from "@/features/auth/auth-context";
 import { NavLinks } from "@/components/layout/nav-links";
 import { navItems, type NavItem } from "@/components/layout/nav-items";
+import { useTheme } from "@/lib/use-theme";
 
 function findActiveItem(items: NavItem[], pathname: string): NavItem | undefined {
   for (const item of items) {
@@ -41,6 +43,7 @@ export function Header() {
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
 
   const currentSection = findActiveItem(navItems, pathname);
+  const { theme, toggle } = useTheme();
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/95 px-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/70 md:px-6">
@@ -69,6 +72,15 @@ export function Header() {
       </p>
 
       <div className="ml-auto">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="mr-2"
+          onClick={() => toggle()}
+          aria-label="Toggle theme"
+        >
+          {theme === "dark" ? <Sun /> : <Moon />}
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
