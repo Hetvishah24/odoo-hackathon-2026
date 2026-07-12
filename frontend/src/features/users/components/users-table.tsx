@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, MoreHorizontal, Search } from "lucide-react";
 
 import { getErrorMessage } from "@/lib/api-client";
 import { useDebounce } from "@/lib/use-debounce";
@@ -79,11 +79,6 @@ export function UsersTable() {
     setPage(1);
   }, [search, approvalFilter]);
 
-  const openCreate = () => {
-    setEditingUser(null);
-    setFormOpen(true);
-  };
-
   const openEdit = (user: User) => {
     setEditingUser(user);
     setFormOpen(true);
@@ -100,37 +95,29 @@ export function UsersTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search users..."
-              className="pl-9"
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-            />
-          </div>
-          <Select
-            value={approvalFilter}
-            onValueChange={(value) => setApprovalFilter(value as typeof approvalFilter)}
-          >
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Approval" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All approval states</SelectItem>
-              <SelectItem value="pending">Pending approval</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search users..."
+            className="pl-9"
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+          />
         </div>
-        {canWrite && (
-          <Button onClick={openCreate}>
-            <Plus />
-            Add user
-          </Button>
-        )}
+        <Select
+          value={approvalFilter}
+          onValueChange={(value) => setApprovalFilter(value as typeof approvalFilter)}
+        >
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Approval" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All approval states</SelectItem>
+            <SelectItem value="pending">Pending approval</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="rounded-lg border bg-card shadow-sm">

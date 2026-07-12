@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/api-client";
 import {
   usersApi,
-  type UserCreatePayload,
   type UserListParams,
   type UserUpdatePayload,
 } from "@/features/users/api";
@@ -23,18 +22,6 @@ export function useUsers(params: UserListParams) {
     queryKey: [USERS_KEY, params],
     queryFn: () => usersApi.list(params),
     placeholderData: keepPreviousData,
-  });
-}
-
-export function useCreateUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: UserCreatePayload) => usersApi.create(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [USERS_KEY] });
-      toast.success("User created");
-    },
-    onError: (error) => toast.error(getErrorMessage(error)),
   });
 }
 

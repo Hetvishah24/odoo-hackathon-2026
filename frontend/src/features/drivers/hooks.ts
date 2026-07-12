@@ -32,6 +32,14 @@ export function useDispatchableDrivers() {
   });
 }
 
+export function useDriver(id: number | null) {
+  return useQuery({
+    queryKey: [DRIVERS_KEY, id],
+    queryFn: () => driversApi.get(id as number),
+    enabled: id !== null,
+  });
+}
+
 export function useUpdateDriver() {
   const queryClient = useQueryClient();
   return useMutation({

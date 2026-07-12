@@ -34,12 +34,12 @@ import {
 } from "@/components/ui/select";
 import type { User } from "@/features/auth/types";
 import { useRoles } from "@/features/roles/hooks";
-import { useCreateUser, useUpdateUser } from "@/features/users/hooks";
+import { useUpdateUser } from "@/features/users/hooks";
 
 const userSchema = z.object({
   full_name: z.string().min(1, "Name is required"),
   email: z.string().email("Enter a valid email address"),
-  // Optional on edit; required for new users (validated in onSubmit)
+  // Optional: only sent if the admin wants to reset the user's password.
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -53,14 +53,13 @@ type UserValues = z.infer<typeof userSchema>;
 interface UserFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Present when editing; absent when creating. */
-  user?: User | null;
+  /** Accounts are created via self-registration (/auth/register) + approval,
+   * not by an admin — this dialog only ever edits an existing user. */
+  user: User | null;
 }
 
 export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps) {
-  const isEdit = Boolean(user);
   const { data: rolesPage } = useRoles();
-  const createUser = useCreateUser();
   const updateUser = useUpdateUser();
 
   const form = useForm<UserValues>({
@@ -81,10 +80,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
   }, [open, user, form]);
 
   const onSubmit = async (values: UserValues) => {
-    if (!isEdit && !values.password) {
-      form.setError("password", { message: "Password is required" });
-      return;
-    }
+    if (!user) return;
 
     const payload = {
       full_name: values.full_name,
@@ -94,24 +90,16 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
       ...(values.password ? { password: values.password } : {}),
     };
 
-    if (isEdit && user) {
-      await updateUser.mutateAsync({ id: user.id, payload });
-    } else {
-      await createUser.mutateAsync({ ...payload, password: values.password });
-    }
+    await updateUser.mutateAsync({ id: user.id, payload });
     onOpenChange(false);
   };
-
-  const isPending = createUser.isPending || updateUser.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit user" : "New user"}</DialogTitle>
-          <DialogDescription>
-            {isEdit ? "Update the user's details." : "Create a new user account."}
-          </DialogDescription>
+          <DialogTitle>Edit user</DialogTitle>
+          <DialogDescription>Update the user&apos;s details.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -146,7 +134,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{isEdit ? "New password (optional)" : "Password"}</FormLabel>
+                  <FormLabel>New password (optional)</FormLabel>
                   <FormControl>
                     <Input type="password" autoComplete="new-password" {...field} />
                   </FormControl>
@@ -194,9 +182,9 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="animate-spin" />}
-                {isEdit ? "Save changes" : "Create user"}
+              <Button type="submit" disabled={updateUser.isPending}>
+                {updateUser.isPending && <Loader2 className="animate-spin" />}
+                Save changes
               </Button>
             </DialogFooter>
           </form>

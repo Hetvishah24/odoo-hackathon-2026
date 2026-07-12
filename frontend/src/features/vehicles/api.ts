@@ -19,6 +19,11 @@ export const vehiclesApi = {
     return data;
   },
 
+  get: async (id: number): Promise<VehicleRead> => {
+    const { data } = await apiClient.get<VehicleRead>(`/vehicles/${id}`);
+    return data;
+  },
+
   create: async (payload: VehicleCreate): Promise<VehicleRead> => {
     const { data } = await apiClient.post<VehicleRead>("/vehicles", payload);
     return data;

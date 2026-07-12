@@ -3,6 +3,7 @@
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { getErrorMessage } from "@/lib/api-client";
+import { chartTooltipContentStyle, chartTooltipItemStyle, chartTooltipLabelStyle } from "@/lib/chart-theme";
 import { cn, formatCurrency, getRoiColorClass } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,7 +52,12 @@ export function VehicleRoiReport({ filters }: { filters: ReportFilters }) {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
                 <XAxis type="number" unit="%" />
                 <YAxis type="category" dataKey="label" width={140} tick={{ fontSize: 12 }} />
-                <Tooltip formatter={(value: number) => `${value}%`} />
+                <Tooltip
+                  formatter={(value: number) => `${value}%`}
+                  contentStyle={chartTooltipContentStyle}
+                  labelStyle={chartTooltipLabelStyle}
+                  itemStyle={chartTooltipItemStyle}
+                />
                 <Bar dataKey="roi_pct" name="ROI">
                   {chartData.map((row) => (
                     <Cell key={row.vehicle_id} fill={(row.roi_pct ?? 0) >= 0 ? POSITIVE : NEGATIVE} />
