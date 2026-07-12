@@ -15,6 +15,7 @@ export const navItems: NavItem[] = [
   {
     title: "Fleet",
     href: "/vehicles",
+    permissions: ["vehicles:read"],
   },
   {
     title: "Drivers",
