@@ -48,11 +48,14 @@ def require_permissions(*required: str):
     """Dependency factory enforcing RBAC permissions.
 
     Permissions are plain strings on the user's role (e.g. "users:read").
-    A role holding "*" is granted everything, including bypassing the approval
-    gate below. Every other account must be approved by an admin (or by
-    whoever holds the relevant "<role>:approve" permission, see
-    app/users/router.py) before any permissioned endpoint will accept it —
-    this does not block login or the /users/me/profile step-2 endpoints.
+    A role holding "*" is granted everything, including bypassing the
+    is_approved/is_profile_complete gates below. Every other account needs
+    is_active (checked in get_current_user), is_approved (granted by an admin,
+    or by whoever holds the relevant "<role>:approve" permission — see
+    app/users/router.py), and is_profile_complete (set once POST
+    /users/me/profile succeeds) all true before any permissioned endpoint will
+    accept it. None of this blocks login or the /users/me/profile endpoints
+    themselves, since a pending user still needs to complete step 2.
 
         @router.get("", dependencies=[Depends(require_permissions("users:read"))])
     """
@@ -63,8 +66,11 @@ def require_permissions(*required: str):
             return user
         if not user.is_approved:
             raise ForbiddenException("Your account is pending admin approval")
-        if not has_permission(user, *required):
-            raise ForbiddenException(f"Missing permissions: {', '.join(required)}")
+        if not user.is_profile_complete:
+            raise ForbiddenException("Complete your profile before accessing this resource")
+        missing = [permission for permission in required if permission not in granted]
+        if missing:
+            raise ForbiddenException(f"Missing permissions: {', '.join(missing)}")
         return user
 
     return checker
