@@ -5,6 +5,7 @@ import { Download, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ExportPdfButton } from "@/components/export-pdf-button";
 import { useExportReportCsv } from "@/features/reports/hooks";
 import { reportTabs } from "@/features/reports/utils";
 import type { ReportFilters, ReportType } from "@/features/reports/types";
@@ -23,6 +24,13 @@ function toApiFilters(state: ReportFilterState): ReportFilters {
   };
 }
 
+const REPORT_TITLES: Record<ReportType, string> = {
+  "fuel-efficiency": "Fuel Efficiency Report",
+  utilization: "Fleet Utilization Report",
+  cost: "Operational Cost Report",
+  roi: "Vehicle ROI Report",
+};
+
 export function ReportsSummary() {
   const [activeTab, setActiveTab] = React.useState<ReportType>("fuel-efficiency");
   const [filterState, setFilterState] = React.useState<ReportFilterState>({
@@ -34,6 +42,7 @@ export function ReportsSummary() {
 
   const exportCsv = useExportReportCsv();
   const apiFilters = toApiFilters(filterState);
+  const exportRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <div className="space-y-6">
@@ -56,22 +65,32 @@ export function ReportsSummary() {
           ))}
         </div>
 
-        <Button
-          variant="outline"
-          disabled={exportCsv.isPending}
-          onClick={() => exportCsv.mutate({ type: activeTab, params: apiFilters })}
-        >
-          {exportCsv.isPending ? <Loader2 className="animate-spin" /> : <Download />}
-          Download CSV
-        </Button>
+        <div className="flex items-center gap-2">
+          <ExportPdfButton
+            targetRef={exportRef}
+            filename={`${activeTab}-report.pdf`}
+            title={REPORT_TITLES[activeTab]}
+            label="Export PDF"
+          />
+          <Button
+            variant="outline"
+            disabled={exportCsv.isPending}
+            onClick={() => exportCsv.mutate({ type: activeTab, params: apiFilters })}
+          >
+            {exportCsv.isPending ? <Loader2 className="animate-spin" /> : <Download />}
+            Download CSV
+          </Button>
+        </div>
       </div>
 
-      <ReportFiltersBar reportType={activeTab} filters={filterState} onChange={setFilterState} />
+      <div ref={exportRef} className="space-y-6">
+        <ReportFiltersBar reportType={activeTab} filters={filterState} onChange={setFilterState} />
 
-      {activeTab === "fuel-efficiency" && <FuelEfficiencyReport filters={apiFilters} />}
-      {activeTab === "utilization" && <FleetUtilizationReport filters={apiFilters} />}
-      {activeTab === "cost" && <OperationalCostReport filters={apiFilters} />}
-      {activeTab === "roi" && <VehicleRoiReport filters={apiFilters} />}
+        {activeTab === "fuel-efficiency" && <FuelEfficiencyReport filters={apiFilters} />}
+        {activeTab === "utilization" && <FleetUtilizationReport filters={apiFilters} />}
+        {activeTab === "cost" && <OperationalCostReport filters={apiFilters} />}
+        {activeTab === "roi" && <VehicleRoiReport filters={apiFilters} />}
+      </div>
     </div>
   );
 }

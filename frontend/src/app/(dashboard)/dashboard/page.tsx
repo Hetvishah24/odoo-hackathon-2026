@@ -1,5 +1,8 @@
 "use client";
 
+import * as React from "react";
+
+import { ExportPdfButton } from "@/components/export-pdf-button";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { getErrorMessage } from "@/lib/api-client";
@@ -19,6 +22,7 @@ export default function DashboardPage() {
   const { user, hasPermission } = useAuth();
   const { data, isLoading, isError, error, refetch } = useDashboard();
   const sections = data?.sections;
+  const exportRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <div>
@@ -26,9 +30,14 @@ export default function DashboardPage() {
         title="Dashboard"
         description={`Welcome back, ${user?.full_name ?? ""}.`}
         actions={
-          <Badge variant="outline">
-            {formatRoleLabel(data?.role ?? user?.role?.name ?? null)}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">
+              {formatRoleLabel(data?.role ?? user?.role?.name ?? null)}
+            </Badge>
+            {!isLoading && !isError && (
+              <ExportPdfButton targetRef={exportRef} filename="dashboard.pdf" title="Dashboard" />
+            )}
+          </div>
         }
       />
 
@@ -37,7 +46,7 @@ export default function DashboardPage() {
       ) : isError ? (
         <DashboardError message={getErrorMessage(error)} onRetry={() => refetch()} />
       ) : (
-        <div className="space-y-6">
+        <div ref={exportRef} className="space-y-6">
           {/* Section-driven, not role-driven: render purely off which keys the API
            * returned. A new role later needs zero changes here. */}
           {sections?.fleet_overview && <FleetOverviewCards data={sections.fleet_overview} />}
